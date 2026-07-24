@@ -1,4 +1,7 @@
 using System.Text.Json;
+using System.Transactions;
+using System.Linq;
+using System.ComponentModel;
 
 public static class SetsAndMaps
 {
@@ -22,7 +25,20 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        HashSet<string> matchPair = new HashSet<string>();
+        var trackWords = new HashSet<string>(words);
+        foreach (string word in words)
+        {
+            string currentWord = word;
+            string reverseWord = new String(word.Reverse().ToArray());
+            if (trackWords.Contains(reverseWord) && currentWord != reverseWord)
+            {
+                var sortedPair = string.Join(" & ", new[] { currentWord, reverseWord }.OrderBy(x => x));
+                matchPair.Add(sortedPair);
+            }
+            
+        }
+        return matchPair.ToArray();
     }
 
     /// <summary>
@@ -39,10 +55,30 @@ public static class SetsAndMaps
     public static Dictionary<string, int> SummarizeDegrees(string filename)
     {
         var degrees = new Dictionary<string, int>();
+        string degree;
         foreach (var line in File.ReadLines(filename))
         {
-            var fields = line.Split(",");
+            if(string.IsNullOrWhiteSpace(line)){continue;};
+            var fields = line.Split(',');
             // TODO Problem 2 - ADD YOUR CODE HERE
+            if (fields.Length > 3)
+            {
+                  degree = fields[3].Trim();
+                  if (string.IsNullOrEmpty(degree))
+                continue;
+            if (degrees.ContainsKey(degree))
+            {
+                degrees[degree] += 1;
+              //  Console.WriteLine($"Found degree: '{degree}' (Length: {degree.Length})");
+            }
+            else
+            {
+                degrees[degree] = 1;
+            }
+            }
+          
+
+            
         }
 
         return degrees;
@@ -66,8 +102,46 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
+        string cleanWord1 = word1.Replace(" ", "").ToLower();
+        string cleanWord2 = word2.Replace(" ", "").ToLower();
+        if (cleanWord1.Length != cleanWord2.Length)
+        {
         return false;
+        }
+        if (string.IsNullOrEmpty(cleanWord1))
+        {
+        return true; 
+        }
+        Dictionary<char, int> trackAnagram = new Dictionary<char, int>();
+        foreach (char singleLetter in cleanWord1)
+        {
+            if (trackAnagram.ContainsKey(singleLetter))
+            {
+            trackAnagram[singleLetter] += 1;
+            }
+            else
+            {
+            trackAnagram[singleLetter] = 1; 
+            }
+       }
+        foreach (char singleLetter in cleanWord2)
+        {
+            if (!trackAnagram.ContainsKey(singleLetter))
+            {
+                return false;
+            }
+            trackAnagram[singleLetter] -= 1;
+       }
+       foreach (int count in trackAnagram.Values)
+       {
+        if (count != 0)
+        {
+            return false;
+        }
+        }
+
+        return true;
+        
     }
 
     /// <summary>
